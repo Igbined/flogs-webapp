@@ -28,7 +28,7 @@
 		<section class="dark-card space-y-5 rounded-2xl p-5">
 			<h2 class="text-xl font-bold tracking-tight text-white">Choose Platform</h2>
 			<div class="grid grid-cols-2 gap-3" id="platformOptions">
-				<% ['Instagram', 'Facebook', 'TikTok', 'Google', 'X', 'Hotmail'].forEach((platform, index) => { %>
+				<% ['Instagram', 'X', 'Hotmail'].forEach((platform, index) => { %>
 					<button type="button" data-platform="<%= platform %>" class="option-card <%= index === 0 ? 'selected' : '' %> rounded-xl p-4 text-center text-xs font-semibold text-zinc-200"><%= platform %></button>
 				<% }) %>
 			</div>
