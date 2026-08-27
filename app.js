@@ -1,5 +1,6 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
+const path = require('path');
 const User = require('./models/User');
 const { configureMiddleware, requireAuth } = require('./middleware');
 const { connectDatabase } = require('./config/database');
@@ -9,7 +10,7 @@ const port = process.env.PORT || 3000;
 const host = process.env.HOST || '0.0.0.0';
 
 app.set('view engine', 'ejs');
-app.set('views', './views');
+app.set('views', path.join(__dirname, 'views'));
 
 configureMiddleware(app);
 
