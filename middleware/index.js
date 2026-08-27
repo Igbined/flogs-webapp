@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const express = require('express');
 const helmet = require('helmet');
 const morgan = require('morgan');
@@ -12,6 +13,11 @@ if (!mongoUri) throw new Error('MONGODB_URI is required');
 if (!sessionSecret) throw new Error('SESSION_SECRET is required');
 
 function configureMiddleware(app) {
+  app.use((request, response, next) => {
+    request.requestId = crypto.randomUUID();
+    response.setHeader('X-Request-ID', request.requestId);
+    next();
+  });
   app.set('trust proxy', 1);
   app.disable('x-powered-by');
   app.use(helmet({

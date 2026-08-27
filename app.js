@@ -190,6 +190,26 @@ app.get('/dashboard/sms-verify', (request, response) => {
   response.render('dashboard/sms-verify/index', { pageTitle: 'Flogs — SMS Verify' });
 });
 
+app.use((error, request, response, next) => {
+  console.error('Request failed', {
+    requestId: request.requestId,
+    method: request.method,
+    path: request.originalUrl,
+    name: error.name,
+    code: error.code,
+    message: error.message,
+    stack: error.stack
+  });
+
+  if (response.headersSent) return next(error);
+
+  response.status(500).json({
+    error: 'Internal server error',
+    requestId: request.requestId,
+    ...(process.env.DEBUG_ERRORS === 'true' ? { details: error.message } : {})
+  });
+});
+
 let server;
 
 if (!process.env.VERCEL) {
