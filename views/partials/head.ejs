@@ -1,0 +1,62 @@
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= pageTitle || 'Flogs' %></title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dark: {
+                            bg: '#050608',
+                            card: '#0a0b0e',
+                            border: 'rgba(255, 255, 255, 0.08)',
+                        },
+                        accent: {
+                            blue: '#3b82f6',
+                            glow: 'rgba(59, 130, 246, 0.15)'
+                        }
+                    },
+                    backgroundImage: {
+                        'grid-pattern': 'radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px)',
+                    },
+                    keyframes: {
+                        'gradient-x': {
+                            '0%, 100%': { 'background-size': '200% 200%', 'background-position': 'left center' },
+                            '50%': { 'background-size': '200% 200%', 'background-position': 'right center' },
+                        },
+                        'fast-trail': {
+                            '0%': { transform: 'translateX(-100%)', opacity: '0' },
+                            '50%': { opacity: '1' },
+                            '100%': { transform: 'translateX(200%)', opacity: '0' },
+                        }
+                    },
+                    animation: {
+                        'gradient-x': 'gradient-x 4s ease infinite',
+                        'fast-trail': 'fast-trail 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .grid-bg {
+            background-size: 24px 24px;
+        }
+        .glow-effect {
+            box-shadow: 0 0 60px -15px rgba(59, 130, 246, 0.12);
+        }
+        .glass-panel {
+            background: rgba(10, 11, 14, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .text-glow {
+            text-shadow: 0 0 30px rgba(96, 165, 250, 0.25);
+        }
+    </style>
+</head>

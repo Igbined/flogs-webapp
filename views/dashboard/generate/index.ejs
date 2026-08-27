@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en" class="dark scroll-smooth">
+<%- include('../../partials/head', { pageTitle: pageTitle }) %>
+<body class="bg-dark-bg text-zinc-100 font-sans antialiased selection:bg-blue-600 selection:text-white relative overflow-x-hidden min-h-screen flex flex-col">
+	<div class="fixed inset-0 grid-bg bg-grid-pattern opacity-30 pointer-events-none"></div>
+	<div class="fixed top-[-15%] left-1/2 -translate-x-1/2 w-[900px] h-[450px] bg-gradient-to-b from-blue-950/20 via-zinc-900/10 to-transparent blur-[160px] rounded-full pointer-events-none"></div>
+
+	<%- include('../partials/header') %>
+
+	<main class="flex-1 relative z-10 flex items-center justify-center px-6 pt-32 pb-28">
+		<section class="w-full max-w-md">
+			<div class="flex items-center gap-4 mb-8">
+				<button id="backBtn" type="button" aria-label="Go back" class="w-10 h-10 rounded-xl border border-dark-border text-zinc-400 hover:text-white hover:border-blue-500/40 transition">&larr;</button>
+				<div>
+					<p class="text-xs font-mono uppercase tracking-widest text-blue-400 mb-2">Campaign studio</p>
+					<h1 id="stepTitle" class="text-3xl font-black text-white">Generate Link</h1>
+					<p id="stepSubtitle" class="text-sm text-zinc-400 mt-2">Choose how you want to build your link.</p>
+				</div>
+			</div>
+
+			<div id="stepContainer" class="space-y-4"></div>
+		</section>
+	</main>
+
+	
+	<%- include('../partials/nav', { activeNav: null }) %>
+
+	<style>
+		.step-fade { animation: step-fade 220ms ease-out; }
+		@keyframes step-fade {
+			from { opacity: 0; transform: translateY(8px); }
+			to { opacity: 1; transform: translateY(0); }
+		}
+	</style>
+	<script>
+		let currentStep = 1;
+
+		const icons = {
+			share: '<svg class="w-20 h-20 text-blue-500/30 absolute -right-2 -bottom-2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>',
+			clothing: '<svg class="w-20 h-20 text-blue-500/30 absolute -right-2 -bottom-2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2" d="M6 5l3-2 3 3 3-3 3 2 3 3-3 3v10H6V11L3 8l3-3z"/></svg>',
+			beauty: '<svg class="w-20 h-20 text-blue-500/30 absolute -right-2 -bottom-2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2" d="M9 3h6m-5 0v5.5L6 18a3 3 0 002.6 3h6.8A3 3 0 0018 18l-4-9.5V3m-4 6h4"/></svg>',
+			ambassador: '<svg class="w-20 h-20 text-blue-500/30 absolute -right-2 -bottom-2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2" d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2m8-10a4 4 0 100-8 4 4 0 000 8zm6-3a4 4 0 010 7m4 6v-2a4 4 0 00-3-3.87"/></svg>'
+		};
+
+		const steps = {
+			1: {
+				title: 'Generate Link',
+				subtitle: 'Choose how you want to build your link.',
+				options: [{ title: 'Social Media Links', subtitle: 'Pre-built templates like clothing, beauty, and ambassador', icon: icons.share, action: () => renderStep(2) }]
+			},
+			2: {
+				title: 'Select Type',
+				subtitle: 'Pick a template category for your campaign.',
+				options: [
+					{ title: 'Clothing', subtitle: 'Fashion brands, apparel drops, and store links', icon: icons.clothing, action: () => { window.location.href = '/dashboard/onboarding/socials'; } },
+					{ title: 'Beauty', subtitle: 'Cosmetics, skincare products, and beauty shop links', icon: icons.beauty, action: () => { window.location.href = '/dashboard/onboarding/socials'; } },
+					{ title: 'Ambassador', subtitle: 'Affiliate signups, partner programs, and brand reps', icon: icons.ambassador, action: () => { window.location.href = '/dashboard/onboarding/socials'; } }
+				]
+			}
+		};
+
+		function renderStep(stepNumber) {
+			currentStep = stepNumber;
+			const data = steps[stepNumber];
+			const container = document.getElementById('stepContainer');
+			container.classList.remove('step-fade');
+			void container.offsetWidth;
+			container.classList.add('step-fade');
+			document.getElementById('stepTitle').innerText = data.title;
+			document.getElementById('stepSubtitle').innerText = data.subtitle;
+			container.innerHTML = '';
+
+			data.options.forEach((option) => {
+				const button = document.createElement('button');
+				button.type = 'button';
+				button.className = 'w-full text-left glass-panel rounded-2xl p-5 relative overflow-hidden block hover:border-blue-500/40 transition';
+				button.innerHTML = `<div class="pr-16 relative z-10 space-y-1"><h2 class="text-lg font-bold text-white tracking-tight">${option.title}</h2><p class="text-xs text-zinc-400 leading-relaxed">${option.subtitle}</p></div>${option.icon}`;
+				button.addEventListener('click', option.action || (() => alert(`${option.title} selected`)));
+				container.appendChild(button);
+			});
+		}
+
+		document.getElementById('backBtn').addEventListener('click', () => {
+			if (currentStep > 1) renderStep(currentStep - 1);
+			else window.history.back();
+		});
+
+		renderStep(1);
+	</script>
+</body>
+</html>

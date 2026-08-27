@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+	<title><%= pageTitle || 'Flogs - Transactions' %></title>
+	<script src="https://cdn.tailwindcss.com"></script>
+	<style>
+		body {
+			background-color: #050505;
+			color: #e4e4e7;
+		}
+		.dark-card,
+		.filter-container {
+			background-color: #0d0d0d;
+			border: 1px solid #1c1c21;
+		}
+		.tab-btn {
+			transition: all 0.2s ease;
+		}
+		.tab-active {
+			background-color: #27272a;
+			color: #ffffff;
+			font-weight: 500;
+		}
+		.tab-inactive {
+			color: #a1a1aa;
+		}
+		.tab-inactive:hover {
+			color: #ffffff;
+		}
+		.glass-nav {
+			background: rgba(13, 13, 13, 0.85);
+			backdrop-filter: blur(16px);
+			-webkit-backdrop-filter: blur(16px);
+			border-top: 1px solid rgba(255, 255, 255, 0.08);
+			padding-bottom: env(safe-area-inset-bottom, 8px);
+		}
+	</style>
+</head>
+<body class="min-h-screen bg-black text-gray-200 font-sans antialiased pb-28">
+	<%- include('../partials/header') %>
+
+	<main class="max-w-xl mx-auto px-4 py-6 space-y-6">
+		<div class="space-y-4">
+			<button type="button" onclick="window.history.back()" class="inline-flex items-center gap-2 text-zinc-400 hover:text-white text-sm font-medium transition">
+				<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+				</svg>
+				Back to Dashboard
+			</button>
+
+			<div class="space-y-1">
+				<div class="flex items-center gap-2.5">
+					<svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+					</svg>
+					<h1 class="text-3xl font-bold tracking-tight text-white">My Transactions</h1>
+				</div>
+				<p class="text-sm text-zinc-400 pt-1">
+					Payment history and free token claims. Current price: <span class="text-zinc-200 font-medium">₦5,100 / token</span>.
+				</p>
+			</div>
+		</div>
+
+		<div class="filter-container p-1 rounded-2xl inline-flex items-center gap-1">
+			<button type="button" onclick="setFilter('all')" id="tab-all" class="tab-btn tab-active px-4 py-1.5 rounded-xl text-sm">All</button>
+			<button type="button" onclick="setFilter('pending')" id="tab-pending" class="tab-btn tab-inactive px-4 py-1.5 rounded-xl text-sm">Pending</button>
+			<button type="button" onclick="setFilter('completed')" id="tab-completed" class="tab-btn tab-inactive px-4 py-1.5 rounded-xl text-sm">Completed</button>
+			<button type="button" onclick="setFilter('failed')" id="tab-failed" class="tab-btn tab-inactive px-4 py-1.5 rounded-xl text-sm">Failed</button>
+		</div>
+
+		<section class="dark-card rounded-2xl p-12 min-h-[220px] flex flex-col items-center justify-center text-center space-y-3">
+			<p id="emptyStateText" class="text-zinc-400 text-sm font-medium">No transactions yet.</p>
+			<a href="/dashboard/credit" class="text-sm text-white underline underline-offset-4 decoration-zinc-500 hover:decoration-white transition">Buy credits from the dashboard</a>
+		</section>
+	</main>
+
+	<%- include('../partials/nav', { activeNav: 'transactions' }) %>
+
+	<script>
+		function setFilter(status) {
+			const tabs = ['all', 'pending', 'completed', 'failed'];
+
+			tabs.forEach(tab => {
+				const button = document.getElementById(`tab-${tab}`);
+				button.className = tab === status
+					? 'tab-btn tab-active px-4 py-1.5 rounded-xl text-sm'
+					: 'tab-btn tab-inactive px-4 py-1.5 rounded-xl text-sm';
+			});
+
+			const emptyText = document.getElementById('emptyStateText');
+			emptyText.innerText = status === 'all'
+				? 'No transactions yet.'
+				: `No ${status} transactions found.`;
+		}
+	</script>
+</body>
+</html>

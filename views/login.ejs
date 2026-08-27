@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" class="dark scroll-smooth">
+<%- include('partials/head', { pageTitle: pageTitle }) %>
+<body class="bg-dark-bg text-zinc-100 font-sans antialiased selection:bg-blue-600 selection:text-white relative overflow-x-hidden min-h-screen flex flex-col">
+    <div class="fixed inset-0 grid-bg bg-grid-pattern opacity-30 pointer-events-none"></div>
+    <div class="fixed top-[-15%] left-1/2 -translate-x-1/2 w-[900px] h-[450px] bg-gradient-to-b from-blue-950/20 via-zinc-900/10 to-transparent blur-[160px] rounded-full pointer-events-none"></div>
+
+    <%- include('partials/header') %>
+
+    <main class="flex-1 relative z-10 flex items-center justify-center px-6 pt-32 pb-20">
+        <section class="w-full max-w-md">
+            <div class="text-center mb-8">
+                <p class="text-xs font-mono uppercase tracking-widest text-blue-400 mb-4">Welcome back</p>
+                <h1 class="text-4xl font-black text-white mb-3">Log in to Flogs</h1>
+                <p class="text-zinc-400">Continue building campaigns at full speed.</p>
+            </div>
+
+            <form action="/login" method="post" class="glass-panel glow-effect rounded-3xl p-6 md:p-8 space-y-5">
+                <% if (typeof error !== 'undefined') { %>
+                    <p class="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300"><%= error %></p>
+                <% } %>
+                <div>
+                    <label for="email" class="block text-xs font-mono text-zinc-400 mb-2">EMAIL</label>
+                    <input id="email" name="email" type="email" autocomplete="email" required placeholder="you@company.com" class="w-full bg-dark-bg border border-dark-border focus:border-blue-500/60 rounded-xl px-4 py-3 text-sm text-white placeholder-zinc-600 outline-none transition-all">
+                </div>
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <label for="password" class="block text-xs font-mono text-zinc-400">PASSWORD</label>
+                        <a href="#" class="text-xs text-blue-400 hover:text-blue-300">Forgot password?</a>
+                    </div>
+                    <input id="password" name="password" type="password" autocomplete="current-password" required placeholder="Enter your password" class="w-full bg-dark-bg border border-dark-border focus:border-blue-500/60 rounded-xl px-4 py-3 text-sm text-white placeholder-zinc-600 outline-none transition-all">
+                </div>
+                <button type="submit" class="w-full py-3.5 rounded-xl bg-white text-zinc-950 font-bold text-sm hover:bg-zinc-100 transition-colors">Log In</button>
+                <p class="text-center text-sm text-zinc-500">New to Flogs? <a href="/signup" class="text-blue-400 hover:text-blue-300">Create an account</a></p>
+            </form>
+        </section>
+    </main>
+
+    <%- include('partials/footer') %>
+</body>
+</html>

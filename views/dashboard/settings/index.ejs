@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+	<title><%= pageTitle || 'Flogs - Settings' %></title>
+	<script src="https://cdn.tailwindcss.com"></script>
+	<style>
+		body {
+			background-color: #050505;
+			color: #e4e4e7;
+		}
+		.dark-card {
+			background-color: #0d0d0d;
+			border: 1px solid #1c1c21;
+		}
+		.dark-input {
+			background-color: #121215;
+			border: 1px solid #27272a;
+		}
+		.dark-input:focus-within {
+			border-color: #3f3f46;
+		}
+		.inner-card {
+			background-color: #121215;
+			border: 1px solid #27272a;
+			transition: all 0.2s ease;
+		}
+		.inner-card:hover {
+			background-color: #18181b;
+			border-color: #3f3f46;
+		}
+		.glass-nav {
+			background: rgba(13, 13, 13, 0.85);
+			backdrop-filter: blur(16px);
+			-webkit-backdrop-filter: blur(16px);
+			border-top: 1px solid rgba(255, 255, 255, 0.08);
+			padding-bottom: env(safe-area-inset-bottom, 8px);
+		}
+	</style>
+</head>
+<body class="min-h-screen bg-black text-gray-200 font-sans antialiased pb-28">
+	<%- include('../partials/header') %>
+
+	<main class="max-w-xl mx-auto px-4 py-6 space-y-6">
+		<div class="space-y-4">
+			<a href="/dashboard" class="inline-flex items-center gap-2 text-zinc-400 hover:text-white text-sm font-medium transition">
+				<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+				</svg>
+				Back to Dashboard
+			</a>
+			<div class="space-y-1">
+				<h1 class="text-3xl font-bold tracking-tight text-white">Settings</h1>
+				<p class="text-sm text-zinc-400">Manage your account security and connections.</p>
+			</div>
+		</div>
+
+		<section class="dark-card rounded-2xl p-6 space-y-4">
+			<div class="space-y-1">
+				<h2 class="text-xl font-bold text-white tracking-tight">Integrations</h2>
+				<p class="text-sm text-zinc-400">Connect external services to enhance your experience</p>
+			</div>
+			<button id="openTelegramModal" type="button" class="w-full text-left inner-card rounded-xl p-4 flex items-center justify-between group">
+				<div class="space-y-0.5">
+					<h3 class="text-base font-semibold text-white">Telegram Notifications</h3>
+					<p class="text-xs text-zinc-400">Connect to receive real-time alerts</p>
+				</div>
+				<svg class="w-5 h-5 text-zinc-400 group-hover:text-white transition" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+				</svg>
+			</button>
+		</section>
+
+		<section class="dark-card rounded-2xl p-6 space-y-5">
+			<div class="flex items-start gap-4">
+				<div class="w-10 h-10 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-300 shrink-0">
+					<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 00-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+					</svg>
+				</div>
+				<div class="space-y-0.5 pt-0.5">
+					<h2 class="text-xl font-bold text-white tracking-tight">Password Security</h2>
+					<p class="text-sm text-zinc-400">Update your password to keep your account safe</p>
+				</div>
+			</div>
+
+			<form onsubmit="handlePasswordUpdate(event)" class="space-y-4 pt-2">
+				<div class="space-y-1.5">
+					<label for="currentPassword" class="text-sm font-medium text-zinc-300">Current Password</label>
+					<div class="dark-input rounded-xl px-4 py-3 flex items-center justify-between">
+						<input type="password" id="currentPassword" required class="bg-transparent w-full text-sm text-white focus:outline-none pr-3 placeholder-zinc-600">
+						<button type="button" aria-label="Show current password" onclick="toggleVisibility('currentPassword', 'eye1', this)" class="text-zinc-500 hover:text-zinc-300 transition">
+							<svg id="eye1" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+						</button>
+					</div>
+				</div>
+
+				<div class="space-y-1.5">
+					<label for="newPassword" class="text-sm font-medium text-zinc-300">New Password</label>
+					<div class="dark-input rounded-xl px-4 py-3 flex items-center justify-between">
+						<input type="password" id="newPassword" required class="bg-transparent w-full text-sm text-white focus:outline-none pr-3 placeholder-zinc-600">
+						<button type="button" aria-label="Show new password" onclick="toggleVisibility('newPassword', 'eye2', this)" class="text-zinc-500 hover:text-zinc-300 transition">
+							<svg id="eye2" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+						</button>
+					</div>
+				</div>
+
+				<div class="space-y-1.5">
+					<label for="confirmPassword" class="text-sm font-medium text-zinc-300">Confirm New Password</label>
+					<div class="dark-input rounded-xl px-4 py-3">
+						<input type="password" id="confirmPassword" required class="bg-transparent w-full text-sm text-white focus:outline-none placeholder-zinc-600">
+					</div>
+				</div>
+
+				<div class="flex justify-end pt-2">
+					<button type="submit" class="inline-flex items-center gap-2 py-3 px-5 rounded-xl bg-white hover:bg-zinc-200 text-black font-semibold text-sm transition">
+						Update Password
+					</button>
+				</div>
+			</form>
+		</section>
+	</main>
+
+	<div id="telegramModal" class="hidden fixed inset-0 z-[60] flex items-center justify-center px-5 py-6" role="dialog" aria-modal="true" aria-labelledby="telegramModalTitle">
+		<div id="closeTelegramBackdrop" class="absolute inset-0 bg-black/85 backdrop-blur-sm"></div>
+		<div class="relative w-full max-w-md bg-black dark-card rounded-2xl p-5 shadow-2xl shadow-black/60">
+			<div class="mb-6">
+				<button id="closeTelegramModal" type="button" aria-label="Go back" class="inline-flex items-center gap-2 text-zinc-400 hover:text-white text-base font-medium transition">
+					<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+					</svg>
+					Back
+				</button>
+			</div>
+			<div id="telegramBotStep">
+				<div class="space-y-1 mb-6">
+					<p class="text-xs font-mono uppercase tracking-widest text-blue-400">Step 1 of 2</p>
+					<h2 id="telegramModalTitle" class="text-3xl font-bold tracking-tight text-white">Find your Chat ID</h2>
+					<p class="text-sm text-zinc-400 leading-relaxed">Open the Telegram bot below and send it any message. It will reply with your Chat ID.</p>
+				</div>
+				<a href="https://t.me/userinfobot" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between dark-card rounded-2xl p-4 hover:border-blue-500/40 transition">
+					<div>
+						<p class="text-xs text-zinc-500 uppercase tracking-wider">Telegram bot</p>
+						<p class="text-base font-bold text-white mt-1">@userinfobot</p>
+					</div>
+					<span class="text-blue-400 text-sm font-semibold">Open &rarr;</span>
+				</a>
+				<button id="telegramNextStep" type="button" class="w-full mt-5 py-3 rounded-xl bg-white text-zinc-950 font-bold text-sm hover:bg-zinc-100 transition-colors">Next</button>
+			</div>
+
+			<form id="telegramIdStep" class="hidden space-y-4" action="/dashboard" method="post">
+				<div class="space-y-1 mb-6">
+					<p class="text-xs font-mono uppercase tracking-widest text-blue-400">Step 2 of 2</p>
+					<h2 class="text-3xl font-bold tracking-tight text-white">Enter your Chat ID</h2>
+					<p class="text-sm text-zinc-400 leading-relaxed">Paste the ID returned by @userinfobot to finish setup.</p>
+				</div>
+				<div>
+					<label for="chatId" class="block text-xs font-mono text-zinc-400 mb-2">TELEGRAM CHAT ID</label>
+					<input id="chatId" name="chatId" type="text" required placeholder="e.g. 123456789" class="w-full bg-black border border-zinc-800 focus:border-blue-500/60 rounded-xl px-4 py-3 text-sm text-white placeholder-zinc-600 outline-none transition-all">
+				</div>
+				<button type="submit" class="w-full py-3 rounded-xl bg-white text-zinc-950 font-bold text-sm hover:bg-zinc-100 transition-colors">Save Chat ID</button>
+			</form>
+		</div>
+	</div>
+
+	<%- include('../partials/nav', { activeNav: 'pro' }) %>
+
+	<script>
+		function toggleVisibility(inputId, iconId, button) {
+			const input = document.getElementById(inputId);
+			const icon = document.getElementById(iconId);
+			const isPassword = input.type === 'password';
+
+			input.type = isPassword ? 'text' : 'password';
+			button.setAttribute('aria-label', `${isPassword ? 'Hide' : 'Show'} ${inputId.replace('Password', ' password')}`);
+			icon.innerHTML = isPassword
+				? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858-5.908a10.11 10.11 0 012.122-.063c4.478 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21M3 3l18 18"/>'
+				: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>';
+		}
+
+		function handlePasswordUpdate(event) {
+			event.preventDefault();
+			const newPass = document.getElementById('newPassword').value;
+			const confirmPass = document.getElementById('confirmPassword').value;
+
+			if (newPass !== confirmPass) {
+				alert('New passwords do not match!');
+				return;
+			}
+
+			alert('Password successfully updated!');
+		}
+
+		const telegramModal = document.getElementById('telegramModal');
+		const openTelegramModal = document.getElementById('openTelegramModal');
+		const closeTelegramModal = document.getElementById('closeTelegramModal');
+		const closeTelegramBackdrop = document.getElementById('closeTelegramBackdrop');
+		const telegramBotStep = document.getElementById('telegramBotStep');
+		const telegramIdStep = document.getElementById('telegramIdStep');
+		const telegramNextStep = document.getElementById('telegramNextStep');
+
+		function closeModal() {
+			telegramModal.classList.add('hidden');
+		}
+
+		function showTelegramBotStep() {
+			telegramBotStep.classList.remove('hidden');
+			telegramIdStep.classList.add('hidden');
+		}
+
+		openTelegramModal.addEventListener('click', () => {
+			telegramModal.classList.remove('hidden');
+			showTelegramBotStep();
+		});
+		telegramNextStep.addEventListener('click', () => {
+			telegramBotStep.classList.add('hidden');
+			telegramIdStep.classList.remove('hidden');
+			document.getElementById('chatId').focus();
+		});
+		closeTelegramModal.addEventListener('click', closeModal);
+		closeTelegramBackdrop.addEventListener('click', closeModal);
+		document.addEventListener('keydown', (event) => {
+			if (event.key === 'Escape') closeModal();
+		});
+	</script>
+</body>
+</html>

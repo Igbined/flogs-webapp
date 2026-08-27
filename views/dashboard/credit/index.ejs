@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+	<title><%= pageTitle || 'Flogs - Buy Credits' %></title>
+	<script src="https://cdn.tailwindcss.com"></script>
+	<style>
+		body {
+			background-color: #050505;
+			color: #e4e4e7;
+		}
+		.dark-card {
+			background-color: #0d0d0d;
+			border: 1px solid #1c1c21;
+		}
+		.dark-input {
+			background-color: #121215;
+			border: 1px solid #27272a;
+		}
+		.dark-input:focus-within {
+			border-color: #3f3f46;
+		}
+		.glass-nav {
+			background: rgba(13, 13, 13, 0.85);
+			backdrop-filter: blur(16px);
+			-webkit-backdrop-filter: blur(16px);
+			border-top: 1px solid rgba(255, 255, 255, 0.08);
+			padding-bottom: env(safe-area-inset-bottom, 8px);
+		}
+	</style>
+</head>
+<body class="min-h-screen bg-black text-gray-200 font-sans antialiased pb-28">
+	<%- include('../partials/header') %>
+
+	<main class="max-w-xl mx-auto px-4 py-6 space-y-6">
+		<div class="space-y-4">
+			<button type="button" onclick="window.history.back()" class="inline-flex items-center gap-2 text-zinc-400 hover:text-white text-sm font-medium transition">
+				<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+				</svg>
+				Back to Dashboard
+			</button>
+			<div class="space-y-1">
+				<h1 class="text-3xl font-bold tracking-tight text-white">Buy Credits</h1>
+				<p class="text-sm text-zinc-400">Purchase tokens to continue generating campaign links.</p>
+			</div>
+		</div>
+
+		<section class="dark-card rounded-2xl p-6 space-y-6">
+			<div class="flex items-start gap-4">
+				<div class="w-10 h-10 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-300 shrink-0">
+					<svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+					</svg>
+				</div>
+				<div class="space-y-0.5 pt-0.5">
+					<h2 class="text-xl font-bold text-white tracking-tight">Token Purchase</h2>
+					<p class="text-sm text-zinc-400">Rate: 1 Token = ₦5,100</p>
+				</div>
+			</div>
+
+			<form onsubmit="handleCheckout(event)" class="space-y-5">
+				<div class="space-y-2">
+					<label for="tokenInput" class="text-sm font-medium text-zinc-300">Amount of Tokens</label>
+					<div class="dark-input rounded-xl px-4 py-3 flex items-center justify-between">
+						<input type="number" id="tokenInput" min="1" step="1" placeholder="Enter amount of tokens" oninput="calculateTotal(this.value)" required class="bg-transparent w-full text-base text-white placeholder-zinc-600 focus:outline-none pr-3 font-mono">
+						<span class="text-xs font-semibold uppercase tracking-wider text-zinc-500 shrink-0">Tokens</span>
+					</div>
+				</div>
+
+				<div class="p-4 rounded-xl bg-[#121215] border border-[#27272a] space-y-2">
+					<div class="flex justify-between text-sm">
+						<span class="text-zinc-400">Unit Price</span>
+						<span class="font-mono text-zinc-200">₦5,100</span>
+					</div>
+					<div class="flex justify-between text-sm">
+						<span class="text-zinc-400">Quantity</span>
+						<span id="summaryTokens" class="font-mono text-zinc-200">0 Tokens</span>
+					</div>
+					<div class="border-t border-zinc-800/80 pt-2 flex justify-between text-base font-semibold">
+						<span class="text-white">Total Amount</span>
+						<span id="summaryTotal" class="font-mono text-white">₦0</span>
+					</div>
+				</div>
+
+				<div class="flex justify-end pt-2">
+					<button type="submit" id="checkoutBtn" disabled class="w-full sm:w-auto inline-flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl bg-zinc-800 text-zinc-500 font-semibold text-sm transition-all duration-200 cursor-not-allowed opacity-60">
+						<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+						</svg>
+						<span id="btnText">Pay ₦0</span>
+					</button>
+				</div>
+			</form>
+		</section>
+	</main>
+
+	<%- include('../partials/nav', { activeNav: 'credit' }) %>
+
+	<script>
+		const tokenPrice = 5100;
+
+		function formatNaira(amount) {
+			return `₦${amount.toLocaleString('en-NG')}`;
+		}
+
+		function calculateTotal(value) {
+			const tokens = Number.parseInt(value, 10) || 0;
+			const total = tokens * tokenPrice;
+			const checkoutButton = document.getElementById('checkoutBtn');
+
+			document.getElementById('summaryTokens').textContent = `${tokens.toLocaleString('en-NG')} Token${tokens === 1 ? '' : 's'}`;
+			document.getElementById('summaryTotal').textContent = formatNaira(total);
+			document.getElementById('btnText').textContent = `Pay ${formatNaira(total)}`;
+			checkoutButton.disabled = tokens < 1;
+			checkoutButton.classList.toggle('bg-white', tokens >= 1);
+			checkoutButton.classList.toggle('text-black', tokens >= 1);
+			checkoutButton.classList.toggle('hover:bg-zinc-200', tokens >= 1);
+			checkoutButton.classList.toggle('bg-zinc-800', tokens < 1);
+			checkoutButton.classList.toggle('text-zinc-500', tokens < 1);
+			checkoutButton.classList.toggle('cursor-not-allowed', tokens < 1);
+			checkoutButton.classList.toggle('opacity-60', tokens < 1);
+		}
+
+		function handleCheckout(event) {
+			event.preventDefault();
+			const tokens = Number.parseInt(document.getElementById('tokenInput').value, 10);
+			alert(`Checkout for ${tokens.toLocaleString('en-NG')} token${tokens === 1 ? '' : 's'}: ${formatNaira(tokens * tokenPrice)}`);
+		}
+	</script>
+</body>
+</html>
