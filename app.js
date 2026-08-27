@@ -184,7 +184,46 @@ app.get('/dashboard/transactions', (request, response) => {
 });
 
 app.get('/dashboard/settings', (request, response) => {
-  response.render('dashboard/settings/index', { pageTitle: 'Flogs — Settings' });
+  const passwordMessage = request.session.passwordMessage;
+  delete request.session.passwordMessage;
+  response.render('dashboard/settings/index', { pageTitle: 'Flogs — Settings', passwordMessage });
+});
+
+app.post('/dashboard/settings/password', async (request, response, next) => {
+  try {
+    const currentPassword = String(request.body.currentPassword || '');
+    const newPassword = String(request.body.newPassword || '');
+    const confirmPassword = String(request.body.confirmPassword || '');
+    const user = await User.findById(request.session.userId).select('+passwordHash');
+
+    if (!user || user.status !== 'active') {
+      request.session.destroy(() => response.redirect('/login'));
+      return;
+    }
+
+    if (!(await bcrypt.compare(currentPassword, user.passwordHash))) {
+      request.session.passwordMessage = { type: 'error', text: 'Current password is incorrect.' };
+      return response.redirect('/dashboard/settings');
+    }
+
+    if (newPassword.length < 8 || newPassword.length > 128) {
+      request.session.passwordMessage = { type: 'error', text: 'New password must be between 8 and 128 characters.' };
+      return response.redirect('/dashboard/settings');
+    }
+
+    if (newPassword !== confirmPassword) {
+      request.session.passwordMessage = { type: 'error', text: 'New passwords do not match.' };
+      return response.redirect('/dashboard/settings');
+    }
+
+    user.passwordHash = await bcrypt.hash(newPassword, 12);
+    user.security.passwordChangedAt = new Date();
+    await user.save();
+    request.session.passwordMessage = { type: 'success', text: 'Password updated successfully.' };
+    response.redirect('/dashboard/settings');
+  } catch (error) {
+    next(error);
+  }
 });
 
 app.get('/dashboard/sms-verify', (request, response) => {

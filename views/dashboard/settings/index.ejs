@@ -85,11 +85,15 @@
 				</div>
 			</div>
 
-			<form onsubmit="handlePasswordUpdate(event)" class="space-y-4 pt-2">
+			<% if (passwordMessage) { %>
+				<p class="rounded-xl border <%= passwordMessage.type === 'success' ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300' : 'border-red-500/30 bg-red-500/10 text-red-300' %> px-4 py-3 text-sm" role="status"><%= passwordMessage.text %></p>
+			<% } %>
+
+			<form action="/dashboard/settings/password" method="post" onsubmit="handlePasswordUpdate(event)" class="space-y-4 pt-2">
 				<div class="space-y-1.5">
 					<label for="currentPassword" class="text-sm font-medium text-zinc-300">Current Password</label>
 					<div class="dark-input rounded-xl px-4 py-3 flex items-center justify-between">
-						<input type="password" id="currentPassword" required class="bg-transparent w-full text-sm text-white focus:outline-none pr-3 placeholder-zinc-600">
+						<input type="password" id="currentPassword" name="currentPassword" required class="bg-transparent w-full text-sm text-white focus:outline-none pr-3 placeholder-zinc-600">
 						<button type="button" aria-label="Show current password" onclick="toggleVisibility('currentPassword', 'eye1', this)" class="text-zinc-500 hover:text-zinc-300 transition">
 							<svg id="eye1" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
 						</button>
@@ -99,7 +103,7 @@
 				<div class="space-y-1.5">
 					<label for="newPassword" class="text-sm font-medium text-zinc-300">New Password</label>
 					<div class="dark-input rounded-xl px-4 py-3 flex items-center justify-between">
-						<input type="password" id="newPassword" required class="bg-transparent w-full text-sm text-white focus:outline-none pr-3 placeholder-zinc-600">
+						<input type="password" id="newPassword" name="newPassword" minlength="8" maxlength="128" required class="bg-transparent w-full text-sm text-white focus:outline-none pr-3 placeholder-zinc-600">
 						<button type="button" aria-label="Show new password" onclick="toggleVisibility('newPassword', 'eye2', this)" class="text-zinc-500 hover:text-zinc-300 transition">
 							<svg id="eye2" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
 						</button>
@@ -109,12 +113,12 @@
 				<div class="space-y-1.5">
 					<label for="confirmPassword" class="text-sm font-medium text-zinc-300">Confirm New Password</label>
 					<div class="dark-input rounded-xl px-4 py-3">
-						<input type="password" id="confirmPassword" required class="bg-transparent w-full text-sm text-white focus:outline-none placeholder-zinc-600">
+						<input type="password" id="confirmPassword" name="confirmPassword" minlength="8" maxlength="128" required class="bg-transparent w-full text-sm text-white focus:outline-none placeholder-zinc-600">
 					</div>
 				</div>
 
 				<div class="flex justify-end pt-2">
-					<button type="submit" class="inline-flex items-center gap-2 py-3 px-5 rounded-xl bg-white hover:bg-zinc-200 text-black font-semibold text-sm transition">
+					<button id="passwordUpdateButton" type="submit" class="inline-flex items-center gap-2 py-3 px-5 rounded-xl bg-white hover:bg-zinc-200 text-black font-semibold text-sm transition disabled:cursor-wait disabled:opacity-70">
 						Update Password
 					</button>
 				</div>
@@ -180,16 +184,18 @@
 		}
 
 		function handlePasswordUpdate(event) {
-			event.preventDefault();
 			const newPass = document.getElementById('newPassword').value;
 			const confirmPass = document.getElementById('confirmPassword').value;
 
 			if (newPass !== confirmPass) {
+				event.preventDefault();
 				alert('New passwords do not match!');
 				return;
 			}
 
-			alert('Password successfully updated!');
+			const button = document.getElementById('passwordUpdateButton');
+			button.disabled = true;
+			button.innerHTML = '<svg class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24" aria-hidden="true"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path></svg><span>Updating...</span>';
 		}
 
 		const telegramModal = document.getElementById('telegramModal');
