@@ -1,1 +1,104 @@
-customization goes here
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+	<title><%= pageTitle || 'Flogs - Create Contest Website' %></title>
+	<script src="https://cdn.tailwindcss.com"></script>
+	<style>
+		body { background: #050505; color: #e4e4e7; }
+		.dark-card { background: #09090b; border: 1px solid #1c1c21; }
+		.dark-input, .option-card { background: #121215; border: 1px solid #27272a; }
+		.dark-input:focus-within, .option-card:hover { border-color: #52525b; }
+		.option-card.selected { background: #18181b; border-color: #fff; }
+		.duration-card.selected { background: #fff; color: #000; border-color: #fff; }
+		.duration-card.selected .badge { background: #000; color: #fff; }
+		.duration-card.selected .subtext { color: #52525b; }
+	</style>
+</head>
+<body class="min-h-screen bg-black font-sans antialiased text-gray-200 pb-28">
+	<%- include('../../partials/header') %>
+	<main class="mx-auto max-w-xl space-y-6 px-4 py-6">
+		<div class="space-y-1">
+			<a href="/dashboard/genrate" class="text-sm font-medium text-zinc-400 transition hover:text-white">&larr; Back to Generator</a>
+			<h1 class="pt-3 text-3xl font-bold tracking-tight text-white">Create Contest Website</h1>
+			<p class="text-sm text-zinc-400">Configure your campaign before generating its public website.</p>
+		</div>
+
+		<section class="dark-card space-y-5 rounded-2xl p-5">
+			<h2 class="text-xl font-bold tracking-tight text-white">Choose Platform</h2>
+			<div class="grid grid-cols-2 gap-3" id="platformOptions">
+				<% ['Instagram', 'Facebook', 'TikTok', 'Google', 'X', 'Hotmail'].forEach((platform, index) => { %>
+					<button type="button" data-platform="<%= platform %>" class="option-card <%= index === 0 ? 'selected' : '' %> rounded-xl p-4 text-center text-xs font-semibold text-zinc-200"><%= platform %></button>
+				<% }) %>
+			</div>
+			<div class="flex items-center justify-between pt-2">
+				<span class="text-sm font-medium text-white">Password Retry</span>
+				<div class="flex items-center gap-1 rounded-full border border-zinc-800 bg-zinc-900 p-1">
+					<button type="button" data-retry="false" class="rounded-full px-3 py-1 text-xs font-semibold text-zinc-400">Off</button>
+					<button type="button" data-retry="true" class="rounded-full bg-zinc-800 px-3 py-1 text-xs font-semibold text-white">On</button>
+				</div>
+			</div>
+			<div id="retryCountContainer" class="dark-card space-y-2 rounded-2xl p-4">
+				<label for="retryCount" class="text-sm font-semibold text-white">Password Retry Count</label>
+				<div class="dark-input rounded-xl px-4 py-3"><input type="number" id="retryCount" value="1" min="1" max="10" class="w-full bg-transparent font-mono text-white focus:outline-none"></div>
+				<p class="text-xs text-zinc-500">Number of incorrect password attempts before proceeding to OTP.</p>
+			</div>
+		</section>
+
+		<section class="dark-card space-y-5 rounded-2xl p-5">
+			<h2 class="text-xl font-bold tracking-tight text-white">Contest Details</h2>
+			<div class="space-y-3">
+				<label for="imageInput" class="text-sm font-semibold text-white">Contest Image</label>
+				<div class="relative aspect-video overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/50"><img id="imagePreview" src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&q=80" alt="Contest banner preview" class="h-full w-full object-cover"></div>
+				<input type="file" id="imageInput" accept="image/*" class="hidden">
+				<button type="button" id="imageButton" class="w-full rounded-xl border border-zinc-800 bg-zinc-900 py-3.5 text-sm font-semibold text-zinc-300 transition hover:bg-zinc-800">Change Image</button>
+			</div>
+			<div class="space-y-2"><label for="contestantName" class="text-sm font-semibold text-white">Contestant Name</label><div class="dark-input rounded-xl px-4 py-3.5"><input id="contestantName" value="FASHION BRAND" maxlength="80" class="w-full bg-transparent text-base font-semibold uppercase text-white focus:outline-none"></div></div>
+			<div class="space-y-2"><label for="contestPosition" class="text-sm font-semibold text-white">Contest Position</label><div class="dark-input rounded-xl px-4 py-3.5"><input id="contestPosition" value="#3" maxlength="20" class="w-full bg-transparent text-base font-semibold text-white focus:outline-none"></div></div>
+			<div class="space-y-2"><label for="votesCount" class="text-sm font-semibold text-white">Votes shown on landing</label><div class="dark-input rounded-xl px-4 py-3.5"><input id="votesCount" value="1,240" maxlength="20" class="w-full bg-transparent text-base font-semibold text-white focus:outline-none"></div><p class="text-xs text-zinc-500">Shown on your public contest page as a display count.</p></div>
+		</section>
+
+		<section class="dark-card space-y-5 rounded-2xl p-5">
+			<div><h2 class="text-xl font-bold tracking-tight text-white">Duration</h2><p class="mt-1 text-xs text-zinc-400">1 token per week</p></div>
+			<div class="grid grid-cols-2 gap-3" id="durationOptions">
+				<% [{label: '1 week', days: 7, tokens: 1}, {label: '2 weeks', days: 14, tokens: 2}, {label: '3 weeks', days: 21, tokens: 3}, {label: '1 month', days: 28, tokens: 4}, {label: '2 months', days: 56, tokens: 8}, {label: '3 months', days: 84, tokens: 12}].forEach((duration, index) => { %>
+					<button type="button" data-tokens="<%= duration.tokens %>" class="duration-card <%= index === 0 ? 'selected' : '' %> flex items-start justify-between rounded-2xl p-4 text-left"><span><span class="titletext block text-base font-bold <%= index === 0 ? '' : 'text-white' %>"><%= duration.label %></span><span class="subtext block pt-1 text-xs text-zinc-400"><%= duration.days %> days</span></span><span class="badge flex h-6 w-6 items-center justify-center rounded-full bg-black text-xs font-bold text-white"><%= duration.tokens %></span></button>
+				<% }) %>
+			</div>
+		</section>
+
+		<button type="button" id="createWebsiteButton" class="flex w-full flex-col items-center justify-center rounded-2xl bg-white py-4 text-lg font-bold text-black transition hover:bg-zinc-200"><span>Create Contest Website &rarr;</span><span id="tokenCostDisplay" class="text-xs font-semibold text-zinc-500">Cost: 1 Token</span></button>
+		<p id="formStatus" class="hidden rounded-xl border px-4 py-3 text-center text-sm" role="status"></p>
+	</main>
+	<%- include('../../partials/nav', { activeNav: null }) %>
+	<script>
+		let selectedPlatform = 'Instagram';
+		let selectedTokens = 1;
+		const status = document.getElementById('formStatus');
+		document.querySelectorAll('[data-platform]').forEach((button) => button.addEventListener('click', () => {
+			document.querySelectorAll('[data-platform]').forEach((item) => item.classList.remove('selected'));
+			button.classList.add('selected');
+			selectedPlatform = button.dataset.platform;
+		}));
+		document.querySelectorAll('[data-retry]').forEach((button) => button.addEventListener('click', () => {
+			document.querySelectorAll('[data-retry]').forEach((item) => item.classList.remove('bg-zinc-800', 'text-white'));
+			button.classList.add('bg-zinc-800', 'text-white');
+			document.getElementById('retryCountContainer').classList.toggle('hidden', button.dataset.retry !== 'true');
+		}));
+		document.querySelectorAll('[data-tokens]').forEach((button) => button.addEventListener('click', () => {
+			document.querySelectorAll('[data-tokens]').forEach((item) => item.classList.remove('selected'));
+			button.classList.add('selected');
+			selectedTokens = Number(button.dataset.tokens);
+			document.getElementById('tokenCostDisplay').textContent = `Cost: ${selectedTokens} ${selectedTokens === 1 ? 'Token' : 'Tokens'}`;
+		}));
+		document.getElementById('imageButton').addEventListener('click', () => document.getElementById('imageInput').click());
+		document.getElementById('imageInput').addEventListener('change', (event) => { if (event.target.files[0]) document.getElementById('imagePreview').src = URL.createObjectURL(event.target.files[0]); });
+		document.getElementById('createWebsiteButton').addEventListener('click', () => {
+			status.className = 'rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-center text-sm text-amber-300';
+			status.textContent = `Ready to generate ${selectedPlatform} contest website for ${document.getElementById('contestantName').value || 'your contestant'} (${selectedTokens} ${selectedTokens === 1 ? 'token' : 'tokens'}).`;
+		});
+	</script>
+</body>
+</html>
+
