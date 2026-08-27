@@ -191,6 +191,11 @@ app.get('/dashboard/sms-verify', (request, response) => {
 });
 
 app.use((error, request, response, next) => {
+  const isDatabaseError = error.name === 'MongoServerSelectionError'
+    || error.name === 'MongoNetworkError'
+    || error.name === 'MongooseError'
+    || error.name === 'MongoParseError';
+
   console.error('Request failed', {
     requestId: request.requestId,
     method: request.method,
@@ -203,10 +208,12 @@ app.use((error, request, response, next) => {
 
   if (response.headersSent) return next(error);
 
-  response.status(500).json({
+  response.status(isDatabaseError ? 503 : 500).json({
     error: 'Internal server error',
     requestId: request.requestId,
-    ...(process.env.DEBUG_ERRORS === 'true' ? { details: error.message } : {})
+    errorType: isDatabaseError ? 'DATABASE_UNAVAILABLE' : 'REQUEST_FAILED',
+    details: error.message,
+    ...(process.env.DEBUG_ERRORS === 'true' ? { code: error.code || null } : {})
   });
 });
 
