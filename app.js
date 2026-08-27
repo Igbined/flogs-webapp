@@ -13,6 +13,17 @@ app.set('views', './views');
 
 configureMiddleware(app);
 
+const databaseConnection = connectDatabase();
+
+app.use(async (request, response, next) => {
+  try {
+    await databaseConnection;
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
+
 app.get('/health', (request, response) => {
   response.status(200).json({ status: 'ok' });
 });
@@ -181,16 +192,18 @@ app.get('/dashboard/sms-verify', (request, response) => {
 
 let server;
 
-connectDatabase()
-  .then(() => {
-    server = app.listen(port, host, () => {
-      console.log(`Server running on ${host}:${port}`);
+if (!process.env.VERCEL) {
+  databaseConnection
+    .then(() => {
+      server = app.listen(port, host, () => {
+        console.log(`Server running on ${host}:${port}`);
+      });
+    })
+    .catch((error) => {
+      console.error('MongoDB connection failed:', error.message);
+      process.exitCode = 1;
     });
-  })
-  .catch((error) => {
-    console.error('MongoDB connection failed:', error.message);
-    process.exitCode = 1;
-  });
+}
 
 function shutDown(signal) {
   console.log(`${signal} received, shutting down`);
@@ -201,3 +214,5 @@ function shutDown(signal) {
 
 process.on('SIGTERM', () => shutDown('SIGTERM'));
 process.on('SIGINT', () => shutDown('SIGINT'));
+
+module.exports = app;
