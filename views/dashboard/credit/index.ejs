@@ -47,6 +47,12 @@
 			</div>
 		</div>
 
+		<% if (message) { %>
+			<div class="rounded-xl border <%= message.type === 'success' ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300' : 'border-red-500/30 bg-red-500/10 text-red-300' %> px-4 py-3 text-sm">
+				<%= message.text %>
+			</div>
+		<% } %>
+
 		<section class="dark-card rounded-2xl p-6 space-y-6">
 			<div class="flex items-start gap-4">
 				<div class="w-10 h-10 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-300 shrink-0">
@@ -56,7 +62,7 @@
 				</div>
 				<div class="space-y-0.5 pt-0.5">
 					<h2 class="text-xl font-bold text-white tracking-tight">Token Purchase</h2>
-					<p class="text-sm text-zinc-400">Rate: 1 Token = ₦5,100</p>
+					<p class="text-sm text-zinc-400">Rate: 1 Token = <span id="rateDisplay">₦<%= (tokenPrice || 5100).toLocaleString('en-NG') %></span></p>
 				</div>
 			</div>
 
@@ -72,7 +78,7 @@
 				<div class="p-4 rounded-xl bg-[#121215] border border-[#27272a] space-y-2">
 					<div class="flex justify-between text-sm">
 						<span class="text-zinc-400">Unit Price</span>
-						<span class="font-mono text-zinc-200">₦5,100</span>
+					<span class="font-mono text-zinc-200" id="unitPrice">₦<%= (tokenPrice || 5100).toLocaleString('en-NG') %></span>
 					</div>
 					<div class="flex justify-between text-sm">
 						<span class="text-zinc-400">Quantity</span>
@@ -99,7 +105,7 @@
 	<%- include('../partials/nav', { activeNav: 'credit' }) %>
 
 	<script>
-		const tokenPrice = 5100;
+		const tokenPrice = <%= tokenPrice || 5100 %>;
 
 		function formatNaira(amount) {
 			return `₦${amount.toLocaleString('en-NG')}`;
@@ -123,10 +129,44 @@
 			checkoutButton.classList.toggle('opacity-60', tokens < 1);
 		}
 
-		function handleCheckout(event) {
+		async function handleCheckout(event) {
 			event.preventDefault();
 			const tokens = Number.parseInt(document.getElementById('tokenInput').value, 10);
-			alert(`Checkout for ${tokens.toLocaleString('en-NG')} token${tokens === 1 ? '' : 's'}: ${formatNaira(tokens * tokenPrice)}`);
+			if (!Number.isFinite(tokens) || tokens < 1) {
+				alert('Please enter a valid token amount before continuing.');
+				return;
+			}
+
+			const submitButton = document.getElementById('checkoutBtn');
+			submitButton.disabled = true;
+			submitButton.innerHTML = '<span>Processing...</span>';
+
+			try {
+				const response = await fetch('/dashboard/credit/checkout', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						'Accept': 'application/json'
+					},
+					body: JSON.stringify({ tokens })
+				});
+
+				const payload = await response.json();
+				if (!response.ok || !payload?.success) {
+					throw new Error(payload?.message || 'Unable to start checkout.');
+				}
+
+				if (payload.checkoutUrl) {
+					window.location.href = payload.checkoutUrl;
+					return;
+				}
+
+				throw new Error('QuestPay checkout URL was not returned.');
+			} catch (error) {
+				submitButton.disabled = false;
+				submitButton.innerHTML = '<span id="btnText">Pay ' + formatNaira(tokens * tokenPrice) + '</span>';
+				alert(error.message || 'Unable to process credit purchase right now.');
+			}
 		}
 	</script>
 </body>

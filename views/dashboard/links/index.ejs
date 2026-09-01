@@ -43,24 +43,241 @@
 			<p class="text-sm text-zinc-400 leading-relaxed">Manage and monitor all your campaign links.</p>
 		</div>
 
-		<div class="dark-card rounded-2xl p-8 text-center">
-			<div class="w-14 h-14 mx-auto rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
-				<svg class="w-7 h-7 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
-				</svg>
+		<% if (linkHistory && linkHistory.length) { %>
+			<div class="space-y-3">
+				<% linkHistory.forEach((item) => { %>
+					<div class="dark-card rounded-2xl p-4">
+						<div class="flex items-start gap-3">
+							<div class="flex h-11 w-11 items-center justify-center rounded-xl border border-blue-500/20 bg-blue-500/10 text-blue-400">
+								<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+								</svg>
+							</div>
+							<div class="min-w-0 flex-1">
+								<div class="flex items-center justify-between gap-2">
+									<p class="truncate text-sm font-semibold text-white"><%= item.title || 'Campaign link' %></p>
+									<% const isGenerated = item.status === 'generated' || Boolean(item.generatedUrl); %>
+									<span class="rounded-full <%= isGenerated ? 'border border-emerald-500/30 bg-emerald-500/10 text-emerald-300' : 'border border-amber-500/30 bg-amber-500/10 text-amber-300' %> px-2 py-1 text-[10px] font-semibold uppercase tracking-wide">
+										<%= isGenerated ? 'Generated' : 'Pending' %>
+									</span>
+								</div>
+								<% if (isGenerated) { %>
+									<p class="mt-1 text-xs text-emerald-400">Generation complete</p>
+									<div class="mt-2 rounded-xl border border-zinc-800 bg-zinc-950/80 p-2">
+										<p class="truncate text-[11px] text-zinc-300"><%= item.generatedUrl %></p>
+											<div class="mt-2 flex items-center justify-between gap-2">
+												<div class="flex items-center gap-2">
+													<a href="<%= item.generatedUrl %>" target="_blank" rel="noreferrer" class="inline-flex items-center gap-1 text-xs font-medium text-blue-400 hover:text-blue-300">
+														Open link
+														<svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6v6M10 14L20 4"/></svg>
+													</a>
+													<button type="button" data-copy-url="<%= item.generatedUrl %>" class="copy-link-btn inline-flex items-center gap-1 rounded-lg border border-zinc-700 bg-zinc-900 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-zinc-200 hover:border-zinc-500">
+														Copy
+													</button>
+												</div>
+												<button type="button" data-request-id="<%= item.requestId || item._id %>" class="delete-link-btn rounded-lg border border-red-500/30 bg-red-500/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-red-300 hover:border-red-400 hover:bg-red-500/15">
+													Delete
+											</button>
+										</div>
+									</div>
+								<% } else { %>
+										<div class="mt-2 flex items-center justify-between gap-2">
+											<p class="mt-1 text-xs text-zinc-400">Link generation pending</p>
+											<button type="button" data-request-id="<%= item.requestId || item._id %>" class="delete-link-btn rounded-lg border border-red-500/30 bg-red-500/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-red-300 hover:border-red-400 hover:bg-red-500/15">
+												Delete
+											</button>
+										</div>
+								<% } %>
+								<p class="mt-1 text-[11px] text-zinc-500"><%= isGenerated ? 'Ready' : 'Awaiting generation' %> • <%= item.platform %> • <%= item.duration %> • <%= item.tokens %> token<%= item.tokens === 1 ? '' : 's' %></p>
+							</div>
+						</div>
+					</div>
+				<% }) %>
 			</div>
-			<h2 class="mt-5 text-lg font-bold text-white">No links yet</h2>
-			<p class="mt-2 text-sm text-zinc-400 leading-relaxed">Create your first campaign link to start tracking performance.</p>
-			<a href="/dashboard/genrate" class="mt-6 inline-flex items-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-bold text-zinc-950 hover:bg-zinc-100 transition">
-				<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
-				</svg>
-				Create New Link
-			</a>
-		</div>
+		<% } else { %>
+			<div class="dark-card rounded-2xl p-8 text-center">
+				<div class="w-14 h-14 mx-auto rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
+					<svg class="w-7 h-7 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+					</svg>
+				</div>
+				<h2 class="mt-5 text-lg font-bold text-white">No links yet</h2>
+				<p class="mt-2 text-sm text-zinc-400 leading-relaxed">Create your first campaign link to start tracking performance.</p>
+				<a href="/dashboard/genrate" class="mt-6 inline-flex items-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-bold text-zinc-950 hover:bg-zinc-100 transition">
+					<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
+					</svg>
+					Create New Link
+				</a>
+			</div>
+		<% } %>
 	</main>
 
+	<div id="deleteModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 px-4 backdrop-blur-sm">
+		<div class="w-full max-w-sm rounded-2xl border border-zinc-800 bg-zinc-950 p-5 shadow-2xl shadow-black/50">
+			<h3 class="text-lg font-bold text-white">Delete link?</h3>
+			<p class="mt-2 text-sm text-zinc-400">This will remove the selected campaign link from your list.</p>
+			<div class="mt-5 flex items-center justify-end gap-3">
+				<button type="button" id="cancelDeleteBtn" class="rounded-xl border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm font-medium text-zinc-200 hover:border-zinc-500">Cancel</button>
+				<button type="button" id="confirmDeleteBtn" class="rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm font-semibold text-red-300 hover:border-red-400 hover:bg-red-500/15">Delete</button>
+			</div>
+		</div>
+	</div>
+
 	<%- include('../partials/nav', { activeNav: activeNav }) %>
+
+	<script>
+		let pendingDeleteRequestId = null;
+
+		const openDeleteModal = (requestId) => {
+			pendingDeleteRequestId = requestId;
+			document.getElementById('deleteModal').classList.remove('hidden');
+			document.getElementById('deleteModal').classList.add('flex');
+		};
+
+		const closeDeleteModal = () => {
+			pendingDeleteRequestId = null;
+			document.getElementById('deleteModal').classList.add('hidden');
+			document.getElementById('deleteModal').classList.remove('flex');
+		};
+
+		const loadLinkHistory = async () => {
+			try {
+				const response = await fetch('/dashboard/links?json=1', { headers: { Accept: 'application/json' } });
+				if (!response.ok) return;
+				const data = await response.json();
+				const linkHistory = Array.isArray(data.linkHistory) ? data.linkHistory : [];
+				const cards = document.querySelectorAll('.dark-card');
+				const linkList = document.querySelector('.space-y-3');
+				if (!linkList) return;
+
+				const currentMarkup = Array.from(linkList.querySelectorAll('.dark-card')).map((card) => {
+					const title = card.querySelector('p.font-semibold')?.textContent?.trim() || '';
+					const status = card.querySelector('.rounded-full')?.textContent?.trim() || '';
+					return { title, status };
+				});
+
+				let hasGeneratedUpdate = false;
+				for (const item of linkHistory) {
+					const isGenerated = item.status === 'generated' || Boolean(item.generatedUrl);
+					const existing = currentMarkup.find((entry) => entry.title === (item.title || 'Campaign link'));
+					if (isGenerated && (!existing || existing.status !== 'Generated')) {
+						hasGeneratedUpdate = true;
+					}
+				}
+
+				if (!hasGeneratedUpdate && linkHistory.length === 0) return;
+
+				const summary = linkHistory.map((item) => {
+					const isGenerated = item.status === 'generated' || Boolean(item.generatedUrl);
+					const statusLabel = isGenerated ? 'Generated' : 'Pending';
+					const statusClass = isGenerated ? 'border border-emerald-500/30 bg-emerald-500/10 text-emerald-300' : 'border border-amber-500/30 bg-amber-500/10 text-amber-300';
+					const generatedMarkup = isGenerated && item.generatedUrl ? `
+						<div class="mt-2 rounded-xl border border-zinc-800 bg-zinc-950/80 p-2">
+							<p class="truncate text-[11px] text-zinc-300">${item.generatedUrl}</p>
+							<div class="mt-2 flex items-center justify-between gap-2">
+								<div class="flex items-center gap-2">
+									<a href="${item.generatedUrl}" target="_blank" rel="noreferrer" class="inline-flex items-center gap-1 text-xs font-medium text-blue-400 hover:text-blue-300">
+										Open link
+										<svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6v6M10 14L20 4"/></svg>
+									</a>
+									<button type="button" data-copy-url="${item.generatedUrl}" class="copy-link-btn inline-flex items-center gap-1 rounded-lg border border-zinc-700 bg-zinc-900 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-zinc-200 hover:border-zinc-500">Copy</button>
+								</div>
+								<button type="button" data-request-id="${item.requestId || ''}" class="delete-link-btn rounded-lg border border-red-500/30 bg-red-500/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-red-300 hover:border-red-400 hover:bg-red-500/15">Delete</button>
+							</div>
+						</div>
+					` : `<div class="mt-2 flex items-center justify-between gap-2"><p class="mt-1 text-xs text-zinc-400">Link generation pending</p><button type="button" data-request-id="${item.requestId || ''}" class="delete-link-btn rounded-lg border border-red-500/30 bg-red-500/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-red-300 hover:border-red-400 hover:bg-red-500/15">Delete</button></div>`;
+
+					return `
+						<div class="dark-card rounded-2xl p-4">
+							<div class="flex items-start gap-3">
+								<div class="flex h-11 w-11 items-center justify-center rounded-xl border border-blue-500/20 bg-blue-500/10 text-blue-400">
+									<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+									</svg>
+								</div>
+								<div class="min-w-0 flex-1">
+									<div class="flex items-center justify-between gap-2">
+										<p class="truncate text-sm font-semibold text-white">${item.title || 'Campaign link'}</p>
+										<span class="rounded-full ${statusClass} px-2 py-1 text-[10px] font-semibold uppercase tracking-wide">${statusLabel}</span>
+									</div>
+									${generatedMarkup}
+									<p class="mt-1 text-[11px] text-zinc-500">${isGenerated ? 'Ready' : 'Awaiting generation'} • ${item.platform || 'Instagram'} • ${item.duration || '1 week'} • ${Number(item.tokens) || 1} token${(Number(item.tokens) || 1) === 1 ? '' : 's'}</p>
+								</div>
+							</div>
+						</div>
+					`;
+				}).join('');
+
+				if (linkHistory.length) {
+					linkList.innerHTML = summary;
+				} else {
+					linkList.innerHTML = '';
+				}
+			} catch (error) {
+				console.error('Failed to load link history', error);
+			}
+		};
+
+		document.addEventListener('click', async (event) => {
+			const deleteButton = event.target.closest('.delete-link-btn');
+			if (deleteButton) {
+				const requestId = deleteButton.getAttribute('data-request-id');
+				if (!requestId) return;
+				openDeleteModal(requestId);
+				return;
+			}
+
+			if (event.target.id === 'cancelDeleteBtn' || event.target.closest('#cancelDeleteBtn')) {
+				closeDeleteModal();
+				return;
+			}
+
+			if (event.target.id === 'confirmDeleteBtn' || event.target.closest('#confirmDeleteBtn')) {
+				if (!pendingDeleteRequestId) return;
+				const requestId = pendingDeleteRequestId;
+				closeDeleteModal();
+
+				try {
+					const response = await fetch(`/dashboard/links/${encodeURIComponent(requestId)}/delete`, {
+						method: 'POST',
+						headers: { Accept: 'application/json' }
+					});
+					if (!response.ok) {
+						throw new Error('Delete failed');
+					}
+					window.location.reload();
+				} catch (error) {
+					alert('Unable to delete this link right now.');
+				}
+				return;
+			}
+
+			const button = event.target.closest('.copy-link-btn');
+			if (!button) return;
+
+			const url = button.getAttribute('data-copy-url');
+			if (!url) return;
+
+			try {
+				await navigator.clipboard.writeText(url);
+				const originalText = button.textContent;
+				button.textContent = 'Copied';
+				button.disabled = true;
+				setTimeout(() => {
+					button.textContent = originalText;
+					button.disabled = false;
+				}, 1200);
+			} catch (error) {
+				button.textContent = 'Failed';
+				setTimeout(() => {
+					button.textContent = 'Copy';
+				}, 1200);
+			}
+		});
+
+		setInterval(loadLinkHistory, 5000);
+	</script>
 
 </body>
 </html>

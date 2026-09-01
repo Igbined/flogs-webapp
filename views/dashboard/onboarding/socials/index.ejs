@@ -25,78 +25,76 @@
 			<p class="text-sm text-zinc-400">Configure your campaign before generating its public website.</p>
 		</div>
 
-		<section class="dark-card space-y-5 rounded-2xl p-5">
-			<h2 class="text-xl font-bold tracking-tight text-white">Choose Platform</h2>
-			<div class="grid grid-cols-2 gap-3" id="platformOptions">
-				<% ['Instagram', 'X', 'Hotmail'].forEach((platform, index) => { %>
-					<button type="button" data-platform="<%= platform %>" class="option-card <%= index === 0 ? 'selected' : '' %> rounded-xl p-4 text-center text-xs font-semibold text-zinc-200"><%= platform %></button>
-				<% }) %>
-			</div>
-			<div class="flex items-center justify-between pt-2">
-				<span class="text-sm font-medium text-white">Password Retry</span>
-				<div class="flex items-center gap-1 rounded-full border border-zinc-800 bg-zinc-900 p-1">
-					<button type="button" data-retry="false" class="rounded-full px-3 py-1 text-xs font-semibold text-zinc-400">Off</button>
-					<button type="button" data-retry="true" class="rounded-full bg-zinc-800 px-3 py-1 text-xs font-semibold text-white">On</button>
+		<form id="socialForm" action="/dashboard/onboarding/socials" method="post" enctype="multipart/form-data" class="space-y-6">
+			<% if (message) { %>
+				<div class="rounded-xl border <%= message.type === 'error' ? 'border-red-500/30 bg-red-500/10 text-red-300' : 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300' %> px-4 py-3 text-sm">
+					<%= message.text %>
 				</div>
-			</div>
-			<div id="retryCountContainer" class="dark-card space-y-2 rounded-2xl p-4">
-				<label for="retryCount" class="text-sm font-semibold text-white">Password Retry Count</label>
-				<div class="dark-input rounded-xl px-4 py-3"><input type="number" id="retryCount" value="1" min="1" max="10" class="w-full bg-transparent font-mono text-white focus:outline-none"></div>
-				<p class="text-xs text-zinc-500">Number of incorrect password attempts before proceeding to OTP.</p>
-			</div>
-		</section>
+			<% } %>
+			<section class="dark-card space-y-5 rounded-2xl p-5">
+				<h2 class="text-xl font-bold tracking-tight text-white">Choose Platform</h2>
+				<div class="rounded-2xl border border-white/20 bg-zinc-900/80 p-4 text-center">
+					<span class="text-base font-semibold text-white">Instagram</span>
+				</div>
+				<input type="hidden" name="platform" value="Instagram">
+			</section>
 
-		<section class="dark-card space-y-5 rounded-2xl p-5">
-			<h2 class="text-xl font-bold tracking-tight text-white">Contest Details</h2>
-			<div class="space-y-3">
-				<label for="imageInput" class="text-sm font-semibold text-white">Contest Image</label>
-				<div class="relative aspect-video overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/50"><img id="imagePreview" src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&q=80" alt="Contest banner preview" class="h-full w-full object-cover"></div>
-				<input type="file" id="imageInput" accept="image/*" class="hidden">
-				<button type="button" id="imageButton" class="w-full rounded-xl border border-zinc-800 bg-zinc-900 py-3.5 text-sm font-semibold text-zinc-300 transition hover:bg-zinc-800">Change Image</button>
-			</div>
-			<div class="space-y-2"><label for="contestantName" class="text-sm font-semibold text-white">Contestant Name</label><div class="dark-input rounded-xl px-4 py-3.5"><input id="contestantName" value="FASHION BRAND" maxlength="80" class="w-full bg-transparent text-base font-semibold uppercase text-white focus:outline-none"></div></div>
-			<div class="space-y-2"><label for="contestPosition" class="text-sm font-semibold text-white">Contest Position</label><div class="dark-input rounded-xl px-4 py-3.5"><input id="contestPosition" value="#3" maxlength="20" class="w-full bg-transparent text-base font-semibold text-white focus:outline-none"></div></div>
-			<div class="space-y-2"><label for="votesCount" class="text-sm font-semibold text-white">Votes shown on landing</label><div class="dark-input rounded-xl px-4 py-3.5"><input id="votesCount" value="1,240" maxlength="20" class="w-full bg-transparent text-base font-semibold text-white focus:outline-none"></div><p class="text-xs text-zinc-500">Shown on your public contest page as a display count.</p></div>
-		</section>
+			<section class="dark-card space-y-5 rounded-2xl p-5">
+				<h2 class="text-xl font-bold tracking-tight text-white">Contest Details</h2>
+				<div class="space-y-3">
+					<label for="imageInput" class="text-sm font-semibold text-white">Contest Image</label>
+					<div class="relative aspect-video overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/50"><img id="imagePreview" src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&q=80" alt="Contest banner preview" class="h-full w-full object-cover"></div>
+					<input type="file" id="imageInput" name="image" accept="image/*" class="hidden">
+					<button type="button" id="imageButton" class="w-full rounded-xl border border-zinc-800 bg-zinc-900 py-3.5 text-sm font-semibold text-zinc-300 transition hover:bg-zinc-800">Change Image</button>
+				</div>
+				<div class="space-y-2"><label for="contestantName" class="text-sm font-semibold text-white">Contestant Name</label><div class="dark-input rounded-xl px-4 py-3.5"><input id="contestantName" name="contestantName" value="FASHION BRAND" maxlength="80" class="w-full bg-transparent text-base font-semibold uppercase text-white focus:outline-none"></div></div>
+			</section>
 
-		<section class="dark-card space-y-5 rounded-2xl p-5">
-			<div><h2 class="text-xl font-bold tracking-tight text-white">Duration</h2><p class="mt-1 text-xs text-zinc-400">1 token per week</p></div>
-			<div class="grid grid-cols-2 gap-3" id="durationOptions">
-				<% [{label: '1 week', days: 7, tokens: 1}, {label: '2 weeks', days: 14, tokens: 2}, {label: '3 weeks', days: 21, tokens: 3}, {label: '1 month', days: 28, tokens: 4}, {label: '2 months', days: 56, tokens: 8}, {label: '3 months', days: 84, tokens: 12}].forEach((duration, index) => { %>
-					<button type="button" data-tokens="<%= duration.tokens %>" class="duration-card <%= index === 0 ? 'selected' : '' %> flex items-start justify-between rounded-2xl p-4 text-left"><span><span class="titletext block text-base font-bold <%= index === 0 ? '' : 'text-white' %>"><%= duration.label %></span><span class="subtext block pt-1 text-xs text-zinc-400"><%= duration.days %> days</span></span><span class="badge flex h-6 w-6 items-center justify-center rounded-full bg-black text-xs font-bold text-white"><%= duration.tokens %></span></button>
-				<% }) %>
-			</div>
-		</section>
+			<section class="dark-card space-y-5 rounded-2xl p-5">
+				<div><h2 class="text-xl font-bold tracking-tight text-white">Duration</h2><p class="mt-1 text-xs text-zinc-400">1 token per week</p></div>
+				<div class="grid grid-cols-2 gap-3" id="durationOptions">
+					<% [{label: '1 week', days: 7, tokens: 1}, {label: '2 weeks', days: 14, tokens: 2}, {label: '3 weeks', days: 21, tokens: 3}, {label: '1 month', days: 28, tokens: 4}, {label: '2 months', days: 56, tokens: 8}, {label: '3 months', days: 84, tokens: 12}].forEach((duration, index) => { %>
+						<button type="button" data-duration="<%= duration.label %>" data-tokens="<%= duration.tokens %>" class="duration-card <%= index === 0 ? 'selected' : '' %> flex items-start justify-between rounded-2xl p-4 text-left"><span><span class="titletext block text-base font-bold <%= index === 0 ? '' : 'text-white' %>"><%= duration.label %></span><span class="subtext block pt-1 text-xs text-zinc-400"><%= duration.days %> days</span></span><span class="badge flex h-6 w-6 items-center justify-center rounded-full bg-black text-xs font-bold text-white"><%= duration.tokens %></span></button>
+					<% }) %>
+				</div>
+				<input type="hidden" id="durationValue" name="duration" value="1 week">
+				<input type="hidden" id="tokenCount" name="tokens" value="1">
+			</section>
 
-		<button type="button" id="createWebsiteButton" class="flex w-full flex-col items-center justify-center rounded-2xl bg-white py-4 text-lg font-bold text-black transition hover:bg-zinc-200"><span>Create Contest Website &rarr;</span><span id="tokenCostDisplay" class="text-xs font-semibold text-zinc-500">Cost: 1 Token</span></button>
-		<p id="formStatus" class="hidden rounded-xl border px-4 py-3 text-center text-sm" role="status"></p>
+			<button type="submit" id="createWebsiteButton" class="flex w-full items-center justify-center gap-2 rounded-2xl bg-white py-4 text-lg font-bold text-black transition hover:bg-zinc-200 disabled:cursor-not-allowed disabled:bg-zinc-300">
+				<span id="createWebsiteButtonSpinner" class="hidden h-4 w-4 animate-spin rounded-full border-2 border-black/20 border-t-black"></span>
+				<span class="flex flex-col items-center justify-center"><span id="createWebsiteButtonText">Create Contest Website &rarr;</span><span id="tokenCostDisplay" class="text-xs font-semibold text-zinc-500">Cost: 1 Token</span></span>
+			</button>
+			<p id="formStatus" class="hidden rounded-xl border px-4 py-3 text-center text-sm" role="status"></p>
+		</form>
 	</main>
 	<%- include('../../partials/nav', { activeNav: null }) %>
 	<script>
 		let selectedPlatform = 'Instagram';
 		let selectedTokens = 1;
 		const status = document.getElementById('formStatus');
-		document.querySelectorAll('[data-platform]').forEach((button) => button.addEventListener('click', () => {
-			document.querySelectorAll('[data-platform]').forEach((item) => item.classList.remove('selected'));
-			button.classList.add('selected');
-			selectedPlatform = button.dataset.platform;
-		}));
-		document.querySelectorAll('[data-retry]').forEach((button) => button.addEventListener('click', () => {
-			document.querySelectorAll('[data-retry]').forEach((item) => item.classList.remove('bg-zinc-800', 'text-white'));
-			button.classList.add('bg-zinc-800', 'text-white');
-			document.getElementById('retryCountContainer').classList.toggle('hidden', button.dataset.retry !== 'true');
-		}));
+		const durationValueInput = document.getElementById('durationValue');
+		const tokenCountInput = document.getElementById('tokenCount');
+		const createWebsiteButton = document.getElementById('createWebsiteButton');
+		const createWebsiteButtonSpinner = document.getElementById('createWebsiteButtonSpinner');
+		const createWebsiteButtonText = document.getElementById('createWebsiteButtonText');
 		document.querySelectorAll('[data-tokens]').forEach((button) => button.addEventListener('click', () => {
 			document.querySelectorAll('[data-tokens]').forEach((item) => item.classList.remove('selected'));
 			button.classList.add('selected');
 			selectedTokens = Number(button.dataset.tokens);
+			durationValueInput.value = button.dataset.duration || '1 week';
+			tokenCountInput.value = String(selectedTokens);
 			document.getElementById('tokenCostDisplay').textContent = `Cost: ${selectedTokens} ${selectedTokens === 1 ? 'Token' : 'Tokens'}`;
 		}));
 		document.getElementById('imageButton').addEventListener('click', () => document.getElementById('imageInput').click());
 		document.getElementById('imageInput').addEventListener('change', (event) => { if (event.target.files[0]) document.getElementById('imagePreview').src = URL.createObjectURL(event.target.files[0]); });
-		document.getElementById('createWebsiteButton').addEventListener('click', () => {
+		document.getElementById('socialForm').addEventListener('submit', () => {
+			createWebsiteButton.disabled = true;
+			createWebsiteButtonSpinner.classList.remove('hidden');
+			createWebsiteButtonText.textContent = 'Sending request...';
 			status.className = 'rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-center text-sm text-amber-300';
-			status.textContent = `Ready to generate ${selectedPlatform} contest website for ${document.getElementById('contestantName').value || 'your contestant'} (${selectedTokens} ${selectedTokens === 1 ? 'token' : 'tokens'}).`;
+			status.textContent = `Sending ${selectedPlatform} contest request for ${document.getElementById('contestantName').value || 'your contestant'}...`;
+			status.classList.remove('hidden');
 		});
 	</script>
 </body>

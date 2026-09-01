@@ -37,7 +37,8 @@ function configureMiddleware(app) {
     }
   }));
   app.use(morgan('dev'));
-  app.use(express.json());
+  app.use('/webhooks/questpay', express.raw({ type: 'application/json', limit: '1mb' }));
+  app.use(express.json({ limit: '1mb' }));
   app.use(express.urlencoded({ extended: true }));
   app.use(session({
     secret: sessionSecret,
@@ -68,4 +69,12 @@ function requireAuth(request, response, next) {
   next();
 }
 
-module.exports = { configureMiddleware, requireAuth, mongoUri };
+function requireAdminAuth(request, response, next) {
+  if (!request.session.userId || request.session.userRole !== 'admin') {
+    return response.redirect('/admin_login');
+  }
+
+  next();
+}
+
+module.exports = { configureMiddleware, requireAuth, requireAdminAuth, mongoUri };

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= pageTitle || 'Flogs — Admin Settings' %></title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { background: linear-gradient(135deg, #f0f4f8 0%, #e8f0f7 100%); }
+    .nav-item { @apply rounded-lg border border-blue-200 bg-white px-4 py-2.5 text-center text-sm font-medium text-gray-700 transition hover:bg-blue-50 hover:border-blue-300; }
+    .nav-item.active { @apply border-blue-500 bg-blue-50 text-blue-600 font-semibold; }
+    .btn-primary { @apply rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 active:bg-blue-800; }
+    input { @apply rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100; }
+    .mobile-nav { @apply fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out; }
+    .mobile-nav.hidden { @apply -translate-x-full; }
+    .mobile-nav.show { @apply translate-x-0; }
+    .mobile-overlay { @apply fixed inset-0 z-40 bg-black/50 transition-opacity duration-300; }
+  </style>
+</head>
+<body class="min-h-screen font-sans antialiased">
+  <div id="mobileOverlay" class="mobile-overlay hidden" onclick="toggleMobileNav()"></div>
+  
+  <nav id="mobileNav" class="mobile-nav hidden">
+    <div class="flex items-center justify-between border-b border-gray-200 p-4">
+      <h2 class="text-lg font-bold text-gray-900">Menu</h2>
+      <button onclick="toggleMobileNav()" class="rounded-lg p-2 hover:bg-gray-100">
+        <svg class="h-6 w-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+    <div class="space-y-2 p-4">
+      <a href="/admin" class="block rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50">
+        Overview
+      </a>
+      <a href="/admin/credit" class="block rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50">
+        Credit
+      </a>
+      <a href="/admin/generation-requests" class="block rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50">
+        Generation
+      </a>
+      <a href="/admin/settings" class="block rounded-lg border border-blue-500 bg-blue-50 px-4 py-3 text-sm font-semibold text-blue-600">
+        Settings
+      </a>
+      <form action="/logout" method="post" class="pt-4 border-t border-gray-200">
+        <button type="submit" class="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-50">
+          Logout
+        </button>
+      </form>
+    </div>
+  </nav>
+
+  <div class="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+    <header class="mb-8 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+      <div class="flex items-center gap-4">
+        <button onclick="toggleMobileNav()" class="rounded-lg p-2 hover:bg-gray-200 sm:hidden">
+          <svg class="h-6 w-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
+        <div>
+          <p class="text-xs font-bold uppercase tracking-widest text-blue-600">Admin</p>
+          <h1 class="mt-2 text-3xl font-bold text-gray-900 sm:text-4xl">Settings</h1>
+        </div>
+      </div>
+      <form action="/logout" method="post">
+        <button type="submit" class="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50">
+          Logout
+        </button>
+      </form>
+    </header>
+
+    <nav class="mb-8 grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3">
+      <a href="/admin" class="nav-item">Overview</a>
+      <a href="/admin/credit" class="nav-item">Credit</a>
+      <a href="/admin/generation-requests" class="nav-item">Generation</a>
+      <a href="/admin/settings" class="nav-item active">Settings</a>
+    </nav>
+
+    <% if (message) { %>
+      <div class="mb-6 rounded-lg border <%= message.type === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-red-200 bg-red-50 text-red-700' %> px-4 py-3 text-sm font-medium">
+        <%= message.text %>
+      </div>
+    <% } %>
+
+    <div class="space-y-6">
+      <div class="rounded-2xl border border-blue-100 bg-white p-6 shadow-sm sm:p-8">
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900">Token Pricing</h2>
+          <p class="mt-2 text-gray-600">Configure the price per token for user purchases. All amounts are in Naira (₦).</p>
+        </div>
+
+        <form action="/admin/settings/update-token-price" method="post" class="mt-8 max-w-md space-y-6">
+          <div>
+            <label for="tokenPrice" class="mb-2 block text-sm font-semibold text-gray-900">Price per Token</label>
+            <div class="flex items-center gap-2">
+              <span class="text-lg font-semibold text-gray-700">₦</span>
+              <input type="number" id="tokenPrice" name="tokenPrice" value="<%= tokenPrice || 5100 %>" min="1" step="100" required class="flex-1" />
+            </div>
+            <p class="mt-2 text-sm text-gray-500">Users will be charged this amount multiplied by the number of tokens they purchase.</p>
+          </div>
+
+          <div class="border-t border-gray-200 pt-6">
+            <button type="submit" class="btn-primary w-full sm:w-auto">Save Token Price</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="rounded-2xl border border-blue-100 bg-white p-6 shadow-sm sm:p-8">
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900">Integration Settings</h2>
+          <p class="mt-2 text-gray-600">Manage Telegram and QuestPay API credentials without editing .env</p>
+        </div>
+
+        <form action="/admin/settings/update-config" method="post" class="mt-8 max-w-2xl space-y-6">
+          <div class="grid gap-6 sm:grid-cols-2">
+            <div>
+              <label for="telegramToken" class="mb-2 block text-sm font-semibold text-gray-900">Telegram Admin Token</label>
+              <input type="password" id="telegramToken" name="telegramToken" value="<%= telegramToken || '' %>" placeholder="8783719696:AAHhZ7dNcfaHSRmADc4p..." />
+              <p class="mt-2 text-xs text-gray-500">Bot token from Telegram BotFather</p>
+            </div>
+
+            <div>
+              <label for="telegramId" class="mb-2 block text-sm font-semibold text-gray-900">Telegram Admin Chat ID</label>
+              <input type="text" id="telegramId" name="telegramId" value="<%= telegramId || '' %>" placeholder="7829354744" />
+              <p class="mt-2 text-xs text-gray-500">Your Telegram numeric ID for notifications</p>
+            </div>
+          </div>
+
+          <div class="grid gap-6 sm:grid-cols-2">
+            <div>
+              <label for="questpayKey" class="mb-2 block text-sm font-semibold text-gray-900">QuestPay API Key</label>
+              <input type="password" id="questpayKey" name="questpayKey" value="<%= questpayKey || '' %>" placeholder="qp_live_sk_9Y84XIq50OmeO3HZ..." />
+              <p class="mt-2 text-xs text-gray-500">Secret key from QuestPay dashboard</p>
+            </div>
+
+            <div>
+              <label for="appBaseUrl" class="mb-2 block text-sm font-semibold text-gray-900">App Base URL</label>
+              <input type="url" id="appBaseUrl" name="appBaseUrl" value="<%= appBaseUrl || '' %>" placeholder="https://yourdomain.com" />
+              <p class="mt-2 text-xs text-gray-500">Public URL for payment callbacks</p>
+            </div>
+          </div>
+
+          <div class="border-t border-gray-200 pt-6">
+            <button type="submit" class="btn-primary w-full sm:w-auto">Save Integration Settings</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function toggleMobileNav() {
+      const nav = document.getElementById('mobileNav');
+      const overlay = document.getElementById('mobileOverlay');
+      nav.classList.toggle('hidden');
+      nav.classList.toggle('show');
+      overlay.classList.toggle('hidden');
+    }
+  </script>
+</body>
+</html>
