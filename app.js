@@ -39,6 +39,25 @@ async function getConfigValue(key, fallbackEnvKey) {
   return fallbackEnvKey ? getEnvValue(fallbackEnvKey) : '';
 }
 
+async function getWhatsAppSupportLink() {
+  const countryCode = await getConfigValue('whatsapp_country_code', 'WHATSAPP_COUNTRY_CODE');
+  const phoneNumber = await getConfigValue('whatsapp_number', 'WHATSAPP_NUMBER');
+
+  const normalizedCountryCode = String(countryCode || '').replace(/[^\d+]/g, '').replace(/\+/g, '');
+  const normalizedPhoneNumber = String(phoneNumber || '').replace(/[^\d]/g, '');
+
+  if (!normalizedCountryCode && !normalizedPhoneNumber) {
+    return '';
+  }
+
+  const phone = `${normalizedCountryCode}${normalizedPhoneNumber}`.replace(/\s+/g, '');
+  if (!phone) {
+    return '';
+  }
+
+  return `https://wa.me/${phone.replace(/^\+/, '')}`;
+}
+
 const QUESTPAY_BASE_URL = 'https://payments-server.questlabs.cc/api';
 
 async function initializeQuestpayCheckout({ user, amount, tokens, reference, returnUrl }) {
@@ -530,12 +549,16 @@ app.get('/admin/settings', async (request, response, next) => {
     const telegramIdConfig = await Config.findOne({ key: 'telegram_admin_id' });
     const questpayKeyConfig = await Config.findOne({ key: 'questpay_api_key' });
     const appBaseUrlConfig = await Config.findOne({ key: 'app_base_url' });
+    const whatsappCountryCodeConfig = await Config.findOne({ key: 'whatsapp_country_code' });
+    const whatsappNumberConfig = await Config.findOne({ key: 'whatsapp_number' });
 
     const tokenPrice = tokenPriceConfig?.value || 5100;
     const telegramToken = telegramTokenConfig?.value || '';
     const telegramId = telegramIdConfig?.value || '';
     const questpayKey = questpayKeyConfig?.value || '';
     const appBaseUrl = appBaseUrlConfig?.value || '';
+    const whatsappCountryCode = whatsappCountryCodeConfig?.value || '';
+    const whatsappNumber = whatsappNumberConfig?.value || '';
 
     response.render('admin/settings', {
       pageTitle: 'Flogs — Admin Settings',
@@ -545,6 +568,8 @@ app.get('/admin/settings', async (request, response, next) => {
       telegramId,
       questpayKey,
       appBaseUrl,
+      whatsappCountryCode,
+      whatsappNumber,
       message
     });
   } catch (error) {
@@ -579,7 +604,7 @@ app.post('/admin/settings/update-token-price', async (request, response, next) =
 
 app.post('/admin/settings/update-config', async (request, response, next) => {
   try {
-    const { telegramToken, telegramId, questpayKey, appBaseUrl } = request.body;
+    const { telegramToken, telegramId, questpayKey, appBaseUrl, whatsappCountryCode, whatsappNumber } = request.body;
     const updates = [];
 
     if (telegramToken) {
@@ -614,6 +639,22 @@ app.post('/admin/settings/update-config', async (request, response, next) => {
       ));
     }
 
+    if (whatsappCountryCode) {
+      updates.push(Config.updateOne(
+        { key: 'whatsapp_country_code' },
+        { key: 'whatsapp_country_code', value: String(whatsappCountryCode).trim(), description: 'WhatsApp support country code' },
+        { upsert: true }
+      ));
+    }
+
+    if (whatsappNumber) {
+      updates.push(Config.updateOne(
+        { key: 'whatsapp_number' },
+        { key: 'whatsapp_number', value: String(whatsappNumber).trim(), description: 'WhatsApp support phone number without spaces or symbols' },
+        { upsert: true }
+      ));
+    }
+
     if (updates.length > 0) {
       await Promise.all(updates);
       request.session.settingsMessage = {
@@ -633,7 +674,14 @@ app.post('/admin/settings/update-config', async (request, response, next) => {
   }
 });
 
-app.use('/dashboard', requireAuth);
+app.use('/dashboard', requireAuth, async (request, response, next) => {
+  try {
+    response.locals.whatsappLink = await getWhatsAppSupportLink();
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
 
 app.get('/dashboard', async (request, response, next) => {
   try {

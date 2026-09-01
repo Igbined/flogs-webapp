@@ -141,6 +141,20 @@
             </div>
           </div>
 
+          <div class="grid gap-6 sm:grid-cols-2">
+            <div>
+              <label for="whatsappCountryCode" class="mb-2 block text-sm font-semibold text-gray-900">WhatsApp Country Code</label>
+              <input type="text" id="whatsappCountryCode" name="whatsappCountryCode" value="<%= whatsappCountryCode || '' %>" placeholder="234" />
+              <p class="mt-2 text-xs text-gray-500">Country code only, for example 234 or 1</p>
+            </div>
+
+            <div>
+              <label for="whatsappNumber" class="mb-2 block text-sm font-semibold text-gray-900">WhatsApp Number</label>
+              <input type="tel" id="whatsappNumber" name="whatsappNumber" value="<%= whatsappNumber || '' %>" placeholder="8012345678" />
+              <p class="mt-2 text-xs text-gray-500">Number without spaces or leading zeroes</p>
+            </div>
+          </div>
+
           <div class="border-t border-gray-200 pt-6">
             <button type="submit" class="btn-primary w-full sm:w-auto">Save Integration Settings</button>
           </div>
