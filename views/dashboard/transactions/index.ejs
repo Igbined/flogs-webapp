@@ -70,9 +70,32 @@
 			<button type="button" onclick="setFilter('failed')" id="tab-failed" class="tab-btn tab-inactive px-4 py-1.5 rounded-xl text-sm">Failed</button>
 		</div>
 
-		<section class="dark-card rounded-2xl p-12 min-h-[220px] flex flex-col items-center justify-center text-center space-y-3">
-			<p id="emptyStateText" class="text-zinc-400 text-sm font-medium">No transactions yet.</p>
-			<a href="/dashboard/credit" class="text-sm text-white underline underline-offset-4 decoration-zinc-500 hover:decoration-white transition">Buy credits from the dashboard</a>
+		<section id="transactionSection" class="space-y-3">
+			<% if (transactions && transactions.length) { %>
+				<% transactions.forEach((transaction) => { %>
+					<div class="transaction-item dark-card rounded-2xl p-4" data-status="<%= transaction.status === 'paid' ? 'completed' : transaction.status %>">
+						<div class="flex items-start justify-between gap-3">
+							<div>
+								<p class="text-sm font-semibold text-white">Credit top-up</p>
+								<p class="mt-1 text-xs text-zinc-400"><%= new Date(transaction.paidAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'short', year: 'numeric' }) %></p>
+							</div>
+							<span class="rounded-full border px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.12em] <%= transaction.status === 'paid' ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300' : 'border-amber-500/40 bg-amber-500/10 text-amber-300' %>">
+								<%= transaction.status === 'paid' ? 'Completed' : transaction.status %>
+							</span>
+						</div>
+						<div class="mt-4 flex items-center justify-between">
+							<p class="text-xl font-bold text-white">₦<%= Number(transaction.amountNaira).toLocaleString('en-NG') %></p>
+							<p class="text-sm text-zinc-400"><%= Number(transaction.tokenAmount) %> tokens</p>
+						</div>
+						<p class="mt-3 text-[11px] text-zinc-500">Reference: <%= transaction.reference %></p>
+					</div>
+				<% }) %>
+			<% } else { %>
+				<div id="emptyState" class="dark-card rounded-2xl p-12 min-h-[220px] flex flex-col items-center justify-center text-center space-y-3">
+					<p id="emptyStateText" class="text-zinc-400 text-sm font-medium">No transactions yet.</p>
+					<a href="/dashboard/credit" class="text-sm text-white underline underline-offset-4 decoration-zinc-500 hover:decoration-white transition">Buy credits from the dashboard</a>
+				</div>
+			<% } %>
 		</section>
 	</main>
 
@@ -81,18 +104,35 @@
 	<script>
 		function setFilter(status) {
 			const tabs = ['all', 'pending', 'completed', 'failed'];
-
 			tabs.forEach(tab => {
 				const button = document.getElementById(`tab-${tab}`);
-				button.className = tab === status
-					? 'tab-btn tab-active px-4 py-1.5 rounded-xl text-sm'
-					: 'tab-btn tab-inactive px-4 py-1.5 rounded-xl text-sm';
+				if (button) {
+					button.className = tab === status
+						? 'tab-btn tab-active px-4 py-1.5 rounded-xl text-sm'
+						: 'tab-btn tab-inactive px-4 py-1.5 rounded-xl text-sm';
+				}
 			});
 
+			const items = document.querySelectorAll('.transaction-item');
+			let visibleCount = 0;
+
+			items.forEach((item) => {
+				const matches = status === 'all' || item.dataset.status === status;
+				item.style.display = matches ? 'block' : 'none';
+				if (matches) visibleCount += 1;
+			});
+
+			const emptyState = document.getElementById('emptyState');
+			if (emptyState) {
+				emptyState.style.display = visibleCount === 0 ? 'flex' : 'none';
+			}
+
 			const emptyText = document.getElementById('emptyStateText');
-			emptyText.innerText = status === 'all'
-				? 'No transactions yet.'
-				: `No ${status} transactions found.`;
+			if (emptyText) {
+				emptyText.innerText = status === 'all'
+					? 'No transactions yet.'
+					: `No ${status} transactions found.`;
+			}
 		}
 	</script>
 </body>

@@ -966,8 +966,26 @@ app.post('/dashboard/credit/checkout', async (request, response, next) => {
   }
 });
 
-app.get('/dashboard/transactions', (request, response) => {
-  response.render('dashboard/transactions/index', { pageTitle: 'Flogs — Transactions' });
+app.get('/dashboard/transactions', async (request, response, next) => {
+  try {
+    const user = await User.findById(request.session.userId);
+    const transactions = (Array.isArray(user?.payments?.questpay) ? user.payments.questpay : [])
+      .map((entry) => ({
+        reference: entry.reference || 'N/A',
+        amountNaira: Number(entry.amountNaira) || 0,
+        tokenAmount: Number(entry.tokenAmount) || 0,
+        status: String(entry.status || 'pending').toLowerCase(),
+        paidAt: entry.paidAt || new Date()
+      }))
+      .sort((a, b) => new Date(b.paidAt) - new Date(a.paidAt));
+
+    response.render('dashboard/transactions/index', {
+      pageTitle: 'Flogs — Transactions',
+      transactions
+    });
+  } catch (error) {
+    next(error);
+  }
 });
 
 app.get('/dashboard/settings', (request, response) => {
