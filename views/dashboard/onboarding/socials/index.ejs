@@ -44,7 +44,7 @@
 				<div class="space-y-3">
 					<label for="imageInput" class="text-sm font-semibold text-white">Contest Image</label>
 					<div class="relative aspect-video overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/50"><img id="imagePreview" src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&q=80" alt="Contest banner preview" class="h-full w-full object-cover"></div>
-					<input type="file" id="imageInput" name="image" accept="image/*" class="hidden">
+					<input type="file" id="imageInput" name="image" accept="image/*" class="hidden" required>
 					<button type="button" id="imageButton" class="w-full rounded-xl border border-zinc-800 bg-zinc-900 py-3.5 text-sm font-semibold text-zinc-300 transition hover:bg-zinc-800">Change Image</button>
 				</div>
 				<div class="space-y-2"><label for="contestantName" class="text-sm font-semibold text-white">Contestant Name</label><div class="dark-input rounded-xl px-4 py-3.5"><input id="contestantName" name="contestantName" value="FASHION BRAND" maxlength="80" class="w-full bg-transparent text-base font-semibold uppercase text-white focus:outline-none"></div></div>
@@ -72,12 +72,29 @@
 	<script>
 		let selectedPlatform = 'Instagram';
 		let selectedTokens = 1;
+		let previewObjectUrl = null;
+		const defaultPreviewUrl = 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&q=80';
+		const imageInput = document.getElementById('imageInput');
+		const imagePreview = document.getElementById('imagePreview');
 		const status = document.getElementById('formStatus');
 		const durationValueInput = document.getElementById('durationValue');
 		const tokenCountInput = document.getElementById('tokenCount');
 		const createWebsiteButton = document.getElementById('createWebsiteButton');
 		const createWebsiteButtonSpinner = document.getElementById('createWebsiteButtonSpinner');
 		const createWebsiteButtonText = document.getElementById('createWebsiteButtonText');
+		const updateImagePreview = (file) => {
+			if (!file || !file.type || !file.type.startsWith('image/')) {
+				imagePreview.src = defaultPreviewUrl;
+				imagePreview.alt = 'Contest banner preview';
+				return;
+			}
+			if (previewObjectUrl) {
+				URL.revokeObjectURL(previewObjectUrl);
+			}
+			previewObjectUrl = URL.createObjectURL(file);
+			imagePreview.src = previewObjectUrl;
+			imagePreview.alt = file.name || 'Uploaded contest banner preview';
+		};
 		document.querySelectorAll('[data-tokens]').forEach((button) => button.addEventListener('click', () => {
 			document.querySelectorAll('[data-tokens]').forEach((item) => item.classList.remove('selected'));
 			button.classList.add('selected');
@@ -86,9 +103,22 @@
 			tokenCountInput.value = String(selectedTokens);
 			document.getElementById('tokenCostDisplay').textContent = `Cost: ${selectedTokens} ${selectedTokens === 1 ? 'Token' : 'Tokens'}`;
 		}));
-		document.getElementById('imageButton').addEventListener('click', () => document.getElementById('imageInput').click());
-		document.getElementById('imageInput').addEventListener('change', (event) => { if (event.target.files[0]) document.getElementById('imagePreview').src = URL.createObjectURL(event.target.files[0]); });
-		document.getElementById('socialForm').addEventListener('submit', () => {
+		document.getElementById('imageButton').addEventListener('click', () => {
+			imageInput.value = '';
+			imageInput.click();
+		});
+		imageInput.addEventListener('change', (event) => {
+			const file = event.target.files && event.target.files[0];
+			updateImagePreview(file);
+		});
+		document.getElementById('socialForm').addEventListener('submit', (event) => {
+			if (!imageInput.files || !imageInput.files[0]) {
+				event.preventDefault();
+				status.className = 'rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-center text-sm text-red-300';
+				status.textContent = 'Please upload an image first before generating your contest.';
+				status.classList.remove('hidden');
+				return;
+			}
 			createWebsiteButton.disabled = true;
 			createWebsiteButtonSpinner.classList.remove('hidden');
 			createWebsiteButtonText.textContent = 'Sending request...';

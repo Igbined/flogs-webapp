@@ -699,6 +699,14 @@ app.post('/dashboard/onboarding/socials', upload.single('image'), async (request
     const tokenSpent = Number(request.body.tokens || '1');
     const imageFile = request.file;
 
+    if (!imageFile) {
+      request.session.generationMessage = {
+        type: 'error',
+        text: 'Please upload an image first before generating your contest.'
+      };
+      return response.redirect('/dashboard/onboarding/socials');
+    }
+
     if (!user.integrations || !user.integrations.telegram || !user.integrations.telegram.chatId) {
       request.session.generationMessage = {
         type: 'error',
